@@ -25,8 +25,16 @@ persons = [
 ];
 
 app.get("/", (req, res) =>
-  res.send("<h1>Persons</h1><a href='/api/persons'>Data</a>")
+  res.send(
+    "<h1>Phonebook</h1><a href='/api/persons'>Data</a><br /><a href='/info'>Info</a>"
+  )
 );
+
+app.get("/info", (req, res) => {
+  let info = `<p>Phonebook has info for ${persons.length} people</p>`;
+  let date = `${new Date()}`;
+  res.send(info + date);
+});
 
 app.get("/api/persons", (req, res) => res.json(persons));
 
