@@ -1,6 +1,9 @@
 const express = require("express");
+const uuid = require("uuid")
+
 const app = express();
 
+app.use(express.json());
 let persons = [
   {
     id: "1",
@@ -49,6 +52,13 @@ app.get("/api/persons/:id", (req, res) => {
 app.delete("/api/persons/:id", (req, res) => {
     persons = persons.filter(person => person.id !== req.params.id)
     res.send(204).end()
+})
+
+app.post("/api/persons", (req, res) => {
+    let person = req.body
+    person = {...person, id: uuid.v4()}
+    persons = persons.concat(person)
+    res.json(person)
 })
 
 app.listen(3001);
