@@ -1,5 +1,5 @@
 const express = require("express");
-const uuid = require("uuid")
+const uuid = require("uuid");
 
 const app = express();
 
@@ -42,23 +42,29 @@ app.get("/info", (req, res) => {
 app.get("/api/persons", (req, res) => res.json(persons));
 
 app.get("/api/persons/:id", (req, res) => {
-    const person = persons.find(p => p.id === req.params.id)
-    if (!person)
-        res.status(404).end()
-    else
-        res.json(person)
-})  
+  const person = persons.find((p) => p.id === req.params.id);
+  if (!person) res.status(404).end();
+  else res.json(person);
+});
 
 app.delete("/api/persons/:id", (req, res) => {
-    persons = persons.filter(person => person.id !== req.params.id)
-    res.send(204).end()
-})
+  persons = persons.filter((person) => person.id !== req.params.id);
+  res.send(204).end();
+});
 
 app.post("/api/persons", (req, res) => {
-    let person = req.body
-    person = {...person, id: uuid.v4()}
-    persons = persons.concat(person)
-    res.json(person)
-})
+  let person = req.body;
+  if (!person["name"]) {
+    res.status(400).json({ error: "Name Missing" });
+  } else if (!person["number"])
+    res.status(400).json({ error: "Number Missing" });
+  else if (persons.some((p) => p.name === person.name))
+    res.status(400).json({ error: `${person.name} already exists` });
+  else {
+    person = { ...person, id: uuid.v4() };
+    persons = persons.concat(person);
+    res.json(person);
+  }
+});
 
 app.listen(3001);
