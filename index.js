@@ -17,6 +17,7 @@ const logger = morgan(function (tokens, req, res) {
   ].join(" ");
 });
 
+app.use(express.static('dist'))
 app.use(cors())
 app.use(express.json());
 app.use(logger);
