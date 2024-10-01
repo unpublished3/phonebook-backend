@@ -1,5 +1,6 @@
 const express = require("express");
 const uuid = require("uuid");
+const cors = require("cors")
 const morgan = require("morgan");
 
 const app = express();
@@ -16,6 +17,7 @@ const logger = morgan(function (tokens, req, res) {
   ].join(" ");
 });
 
+app.use(cors())
 app.use(express.json());
 app.use(logger);
 
