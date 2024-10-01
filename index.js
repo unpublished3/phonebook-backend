@@ -1,9 +1,12 @@
 const express = require("express");
 const uuid = require("uuid");
+const morgan = require("morgan");
 
 const app = express();
 
 app.use(express.json());
+app.use(morgan("tiny"));
+
 let persons = [
   {
     id: "1",
@@ -54,10 +57,9 @@ app.delete("/api/persons/:id", (req, res) => {
 
 app.post("/api/persons", (req, res) => {
   let person = req.body;
-  if (!person["name"]) {
-    res.status(400).json({ error: "Name Missing" });
-  } else if (!person["number"])
-    res.status(400).json({ error: "Number Missing" });
+
+  if (!person["name"]) res.status(400).json({ error: "Name Missing" });
+  else if (!person["number"]) res.status(400).json({ error: "Number Missing" });
   else if (persons.some((p) => p.name === person.name))
     res.status(400).json({ error: `${person.name} already exists` });
   else {
