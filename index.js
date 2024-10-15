@@ -1,10 +1,10 @@
 const express = require("express");
 const uuid = require("uuid");
-const cors = require("cors")
+const cors = require("cors");
 const morgan = require("morgan");
-require('dotenv').config()
+require("dotenv").config();
 
-const Person = require("./models/persons")
+const Person = require("./models/persons");
 
 const app = express();
 const logger = morgan(function (tokens, req, res) {
@@ -20,8 +20,8 @@ const logger = morgan(function (tokens, req, res) {
   ].join(" ");
 });
 
-app.use(express.static('dist')) 
-app.use(cors())
+app.use(express.static("dist"));
+app.use(cors());
 app.use(express.json());
 app.use(logger);
 
@@ -55,15 +55,15 @@ app.get("/info", (req, res) => {
 });
 
 app.get("/api/persons", (req, res) => {
-  Person.find({}).then(persons => {
-    res.json(persons)
-  })
+  Person.find({}).then((persons) => {
+    res.json(persons);
+  });
 });
 
 app.get("/api/persons/:id", (req, res) => {
-  const person = persons.find((p) => p.id === req.params.id);
-  if (!person) res.status(404).end();
-  else res.json(person);
+  Person.findById(req.params.id).then((person) => {
+    res.json(person);
+  });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
@@ -76,14 +76,15 @@ app.post("/api/persons", (req, res) => {
 
   if (!person["name"]) res.status(400).json({ error: "Name Missing" });
   else if (!person["number"]) res.status(400).json({ error: "Number Missing" });
-  else if (persons.some((p) => p.name === person.name))
-    res.status(400).json({ error: `${person.name} already exists` });
+  // else if (persons.some((p) => p.name === person.name))
+  // res.status(400).json({ error: `${person.name} already exists` });
   else {
-    person = { ...person, id: uuid.v4() };
-    persons = persons.concat(person);
-    res.json(person);
+    person = new Person({ ...person });
+    person.save().then((savedPerson) => {
+      res.json(savedPerson);
+    });
   }
 });
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT;
 app.listen(PORT);
