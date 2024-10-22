@@ -30,6 +30,8 @@ const errorHandler = (err, req, res, next) => {
   next(err);
 };
 
+const numberExists = (number) => {};
+
 app.use(express.static("dist"));
 app.use(cors());
 app.use(express.json());
@@ -64,17 +66,23 @@ app.delete("/api/persons/:id", (req, res, next) => {
 
 app.post("/api/persons", (req, res) => {
   let person = req.body;
+  console.log(person);
 
   if (!person["name"]) res.status(400).json({ error: "Name Missing" });
   else if (!person["number"]) res.status(400).json({ error: "Number Missing" });
-  // else if (persons.some((p) => p.name === person.name))
-  // res.status(400).json({ error: `${person.name} already exists` });
   else {
     person = new Person({ ...person });
     person.save().then((savedPerson) => {
       res.json(savedPerson);
     });
   }
+});
+
+app.put("/api/persons/:id", (req, res, next) => {
+  let person = req.body;
+  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+    .then((updatedPerson) => res.json(updatedPerson))
+    .catch((err) => next(err));
 });
 
 app.use(errorHandler);
