@@ -37,10 +37,14 @@ app.use(cors());
 app.use(express.json());
 app.use(logger);
 
-app.get("/info", (req, res) => {
-  let info = `<p>Phonebook has info for ${persons.length} people</p>`;
-  let date = `${new Date()}`;
-  res.send(info + date);
+app.get("/info", (req, res, next) => {
+  Person.countDocuments()
+    .then((count) => {
+      let info = `<p>Phonebook has info for ${count} people</p>`;
+      let date = `${new Date()}`;
+      res.send(info + date);
+    })
+    .catch((err) => next(err));
 });
 
 app.get("/api/persons", (req, res) => {
