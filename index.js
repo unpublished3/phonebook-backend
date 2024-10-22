@@ -66,9 +66,10 @@ app.get("/api/persons/:id", (req, res) => {
   });
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  persons = persons.filter((person) => person.id !== req.params.id);
-  res.send(204).end();
+app.delete("/api/persons/:id", (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then((result) => res.status(204).end())
+    .catch((err) => next(err));
 });
 
 app.post("/api/persons", (req, res) => {
