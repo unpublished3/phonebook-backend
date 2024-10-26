@@ -25,8 +25,8 @@ const errorHandler = (err, req, res, next) => {
 
   if (err.name == "CastError")
     return res.status(404).send({ error: "Malformatted Id" });
-  else if (err.name == "ValidationError") 
-    return res.status(400).send({err: err.message})
+  else if (err.name == "ValidationError")
+    return res.status(400).send({ err: err.message });
 
   next(err);
 };
@@ -72,21 +72,24 @@ app.post("/api/persons", (req, res, next) => {
   console.log(person);
 
   // if (!person["name"]) res.status(400).json({ error: "Name Missing" });
-  if (!person["number"]) res.status(400).json({ error: "Number Missing" });
-  else {
-    person = new Person({ ...person });
-    person
-      .save()
-      .then((savedPerson) => {
-        res.json(savedPerson);
-      })
-      .catch((err) => next(err));
-  }
+  // if (!person["number"]) res.status(400).json({ error: "Number Missing" });
+  // else {
+  person = new Person({ ...person });
+  person
+    .save()
+    .then((savedPerson) => {
+      res.json(savedPerson);
+    })
+    .catch((err) => next(err));
+  // }
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
   let person = req.body;
-  Person.findByIdAndUpdate(req.params.id, person, { new: true, runValidators: true })
+  Person.findByIdAndUpdate(req.params.id, person, {
+    new: true,
+    runValidators: true,
+  })
     .then((updatedPerson) => res.json(updatedPerson))
     .catch((err) => next(err));
 });

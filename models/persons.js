@@ -1,9 +1,23 @@
 const mongoose = require("mongoose");
 
-const url = process.env.MONGODB_URI
+const url = process.env.MONGODB_URI;
 
 mongoose.set("strictQuery", false);
 console.log("connecting to", url);
+
+const numberValidator = (number) => {
+  number = number.trim();
+  // if (number.length < 8) return false;
+  const [p1, p2] = number.split("-");
+
+  if (isNaN(Number(p1)) || isNaN(Number(p2))) return false;
+  console.log("\n\n\n\n\n\n\n\n")
+  console.log(p1.length != 2 || p1.length != 3);
+  
+  if (!(p1.length === 2 || p1.length === 3)) return false;
+
+  return true;
+};
 
 mongoose
   .connect(url)
@@ -18,9 +32,14 @@ const personSchema = new mongoose.Schema({
   name: {
     type: String,
     minLength: 3,
-    required: true
+    required: true,
   },
-  number: String,
+  number: {
+    type: String,
+    required: true,
+    minLength: 8,
+    validate: numberValidator,
+  },
 });
 
 personSchema.set("toJSON", {
