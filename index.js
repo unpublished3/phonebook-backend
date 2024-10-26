@@ -23,14 +23,13 @@ const logger = morgan(function (tokens, req, res) {
 const errorHandler = (err, req, res, next) => {
   console.log(err.mesage);
 
-  if (err.name == "CastError") {
+  if (err.name == "CastError")
     return res.status(404).send({ error: "Malformatted Id" });
-  }
+  else if (err.name == "ValidationError") 
+    return res.status(400).send({err: err.message})
 
   next(err);
 };
-
-const numberExists = (number) => {};
 
 app.use(express.static("dist"));
 app.use(cors());
@@ -68,23 +67,26 @@ app.delete("/api/persons/:id", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   let person = req.body;
   console.log(person);
 
-  if (!person["name"]) res.status(400).json({ error: "Name Missing" });
-  else if (!person["number"]) res.status(400).json({ error: "Number Missing" });
+  // if (!person["name"]) res.status(400).json({ error: "Name Missing" });
+  if (!person["number"]) res.status(400).json({ error: "Number Missing" });
   else {
     person = new Person({ ...person });
-    person.save().then((savedPerson) => {
-      res.json(savedPerson);
-    });
+    person
+      .save()
+      .then((savedPerson) => {
+        res.json(savedPerson);
+      })
+      .catch((err) => next(err));
   }
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
   let person = req.body;
-  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+  Person.findByIdAndUpdate(req.params.id, person, { new: true, runValidators: true })
     .then((updatedPerson) => res.json(updatedPerson))
     .catch((err) => next(err));
 });
