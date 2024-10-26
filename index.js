@@ -1,100 +1,99 @@
-const express = require("express");
-const uuid = require("uuid");
-const cors = require("cors");
-const morgan = require("morgan");
-require("dotenv").config();
+const express = require('express')
+const cors = require('cors')
+const morgan = require('morgan')
+require('dotenv').config()
 
-const Person = require("./models/persons");
+const Person = require('./models/persons')
 
-const app = express();
+const app = express()
 const logger = morgan(function (tokens, req, res) {
   return [
     tokens.method(req, res),
     tokens.url(req, res),
     tokens.status(req, res),
-    tokens.res(req, res, "content-length"),
-    "-",
-    tokens["response-time"](req, res),
-    "ms",
-    tokens.method(req, res) === "POST" ? JSON.stringify(req.body) : "",
-  ].join(" ");
-});
+    tokens.res(req, res, 'content-length'),
+    '-',
+    tokens['response-time'](req, res),
+    'ms',
+    tokens.method(req, res) === 'POST' ? JSON.stringify(req.body) : '',
+  ].join(' ')
+})
 
 const errorHandler = (err, req, res, next) => {
-  console.log(err.mesage);
+  console.log(err.mesage)
 
-  if (err.name == "CastError")
-    return res.status(404).send({ error: "Malformatted Id" });
-  else if (err.name == "ValidationError")
-    return res.status(400).send({ err: err.message });
+  if (err.name === 'CastError')
+    return res.status(404).send({ error: 'Malformatted Id' })
+  else if (err.name === 'ValidationError')
+    return res.status(400).send({ err: err.message })
 
-  next(err);
-};
+  next(err)
+}
 
-app.use(express.static("dist"));
-app.use(cors());
-app.use(express.json());
-app.use(logger);
+app.use(express.static('dist'))
+app.use(cors())
+app.use(express.json())
+app.use(logger)
 
-app.get("/info", (req, res, next) => {
+app.get('/info', (req, res, next) => {
   Person.countDocuments()
     .then((count) => {
-      let info = `<p>Phonebook has info for ${count} people</p>`;
-      let date = `${new Date()}`;
-      res.send(info + date);
+      let info = `<p>Phonebook has info for ${count} people</p>`
+      let date = `${new Date()}`
+      res.send(info + date)
     })
-    .catch((err) => next(err));
-});
+    .catch((err) => next(err))
+})
 
-app.get("/api/persons", (req, res) => {
+app.get('/api/persons', (req, res) => {
   Person.find({}).then((persons) => {
-    res.json(persons);
-  });
-});
+    res.json(persons)
+  })
+})
 
-app.get("/api/persons/:id", (req, res, next) => {
+app.get('/api/persons/:id', (req, res, next) => {
   Person.findById(req.params.id)
     .then((person) => {
-      if (person) res.json(person);
-      else res.status(404).end();
+      if (person) res.json(person)
+      else res.status(404).end()
     })
-    .catch((err) => next(err));
-});
+    .catch((err) => next(err))
+})
 
-app.delete("/api/persons/:id", (req, res, next) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
-    .then((result) => res.status(204).end())
-    .catch((err) => next(err));
-});
+    .then(() => res.status(204).end())
+    .catch((err) => next(err))
+})
 
-app.post("/api/persons", (req, res, next) => {
-  let person = req.body;
-  console.log(person);
+app.post('/api/persons', (req, res, next) => {
+  let person = req.body
+  console.log(person)
 
   // if (!person["name"]) res.status(400).json({ error: "Name Missing" });
   // if (!person["number"]) res.status(400).json({ error: "Number Missing" });
   // else {
-  person = new Person({ ...person });
+  person = new Person({ ...person })
   person
     .save()
     .then((savedPerson) => {
-      res.json(savedPerson);
+      res.json(savedPerson)
     })
-    .catch((err) => next(err));
+    .catch((err) => next(err))
   // }
-});
+})
 
-app.put("/api/persons/:id", (req, res, next) => {
-  let person = req.body;
+app.put('/api/persons/:id', (req, res, next) => {
+  let person = req.body
   Person.findByIdAndUpdate(req.params.id, person, {
     new: true,
     runValidators: true,
   })
     .then((updatedPerson) => res.json(updatedPerson))
-    .catch((err) => next(err));
-});
+    .catch((err) => next(err))
+})
 
-app.use(errorHandler);
+app.use(errorHandler)
 
-const PORT = process.env.PORT;
-app.listen(PORT);
+const PORT = process.env.PORT
+app.listen(PORT)
